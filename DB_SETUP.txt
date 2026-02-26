@@ -1,0 +1,205 @@
+================================================================================
+                   FASTAPI TIMBANGAN - DATABASE SETUP
+                              RINGKASAN SETUP
+================================================================================
+
+YANG TELAH DIBUAT:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. DATABASE CONFIGURATION
+   ✓ .env - Updated dengan PostgreSQL connection string
+     - DATABASE_URL=postgresql://opnpg:openpgpwd@localhost:5432/timbangan
+     - SQLALCHEMY_ECHO=False
+   
+   ✓ config.py - Updated dengan database settings
+     - database_url
+     - sqlalchemy_echo
+
+2. ORM & DATABASE ENGINE
+   ✓ database.py - SQLAlchemy engine & session management
+     - engine = create_engine(database_url)
+     - SessionLocal = sessionmaker
+     - Base = declarative_base()
+     - get_db() dependency untuk FastAPI
+   
+   ✓ models.py - Timbangan SQLAlchemy model
+     Schema table:
+     - uuid (PK) - UUID unique identifier
+     - no_urut - Auto-increment sequence number
+     - nopol - Nomor plat nomor (VARCHAR 20)
+     - sopir - Nama sopir (VARCHAR 100)
+     - gross - Berat kotor (NUMERIC 10,2)
+     - rate - Tarif per unit (NUMERIC 10,2, nullable)
+     - nett - Berat bersih (NUMERIC 10,2)
+     - tanggalwaktu - Timestamp pengukuran (DATETIME)
+     - petugas - Nama petugas (VARCHAR 100)
+     - created_at - Timestamp auto (DATETIME, DEFAULT NOW())
+     - updated_at - Timestamp auto update (DATETIME, DEFAULT NOW())
+     - catatan - Catatan tambahan (TEXT, nullable)
+     
+     Indexes:
+     - ix_timbangan_no_urut (UNIQUE)
+     - ix_timbangan_nopol (untuk query)
+     - ix_timbangan_tanggalwaktu (untuk range query)
+     - ix_timbangan_created_at (audit trail)
+
+3. PYDANTIC SCHEMAS
+   ✓ schemas.py - API request/response models
+     - TimbanganBase - Base schema
+     - TimbanganCreate - For POST requests
+     - TimbanganUpdate - For PUT requests
+     - TimbanganResponse - DB model to API response
+     - TimbanganListResponse - For pagination
+     - TimbanganSummary - For statistics
+
+4. ALEMBIC MIGRATIONS
+   ✓ alembic.ini - Configuration file
+   ✓ alembic/env.py - Database connection setup
+   ✓ alembic/script.py.mako - Migration template
+   ✓ alembic/versions/001_initial.py - Initial migration
+     - Creates timbangan table
+     - Creates all indexes
+     - Includes downgrade support
+
+5. HELPER SCRIPTS
+   ✓ db_migrate.py - Migration helper
+     Usage:
+     - python db_migrate.py upgrade      # Run pending migrations
+     - python db_migrate.py downgrade    # Undo last migration
+     - python db_migrate.py current      # Show current revision
+     - python db_migrate.py history      # Show history
+     - python db_migrate.py create <msg> # Create new migration
+
+   ✓ db_setup.py - Database setup verification
+     - Check PostgreSQL connection
+     - Verify imports
+     - Create tables
+     - Test database operations
+
+6. DOCUMENTATION
+   ✓ DATABASE.md - Complete database guide
+     - Setup instructions
+     - Migration commands
+     - Query examples
+     - Best practices
+     - Troubleshooting
+
+   ✓ README.md - Updated dengan:
+     - Database setup section
+     - New table structure info
+     - Database changelog
+
+DEPENDENCIES DITAMBAHKAN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ sqlalchemy==2.0.23       - ORM
+✓ psycopg2-binary==2.9.9   - PostgreSQL adapter
+✓ alembic==1.12.1         - Database migrations
+
+Sudah diinstall sa venv Anda.
+
+CARA MENGGUNAKAN:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP 1: Pastikan PostgreSQL running
+   - Host: localhost:5432
+   - User: opnpg
+   - Password: openpgpwd
+   - Database: timbangan
+
+   Jika belum ada database:
+   $ psql -U opnpg
+   opnpg=# CREATE DATABASE timbangan OWNER opnpg;
+
+STEP 2: Verifikasi setup (optional)
+   $ python db_setup.py
+   
+   Ini akan:
+   - Test PostgreSQL connection
+   - Verify imports
+   - Create tables
+   - Test database operations
+
+STEP 3: Jalankan aplikasi
+   $ python main.py
+   
+   Aplikasi akan:
+   - Auto-create tables jika belum ada (via Base.metadata.create_all)
+   - Start timbangan connection (jika SCALE_AUTO_START=true)
+   - Ready untuk menerima requests
+
+STEP 4: Test API
+   - Buka: http://localhost:8000/docs
+   - Scale API: /api/scale/...
+   - Timbangan Data API: /api/timbangan/... (akan dibuat nanti)
+
+BACKUP COMMANDS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Run migrations:
+$ alembic upgrade head
+
+Check current revision:
+$ alembic current
+
+See migration history:
+$ alembic history
+
+Rollback last migration:
+$ alembic downgrade -1
+
+Create new migration:
+$ alembic revision --autogenerate -m "Add new column"
+
+MAIN FILES REFERENCE:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+database.py          - Database engine dan session (jangan edit)
+models.py            - Timbangan SQLAlchemy model
+schemas.py           - API Pydantic schemas
+config.py            - Includes database_url dari .env
+.env                 - DATABASE_URL secret (jangan commit!)
+alembic/             - Migration files
+main.py              - Auto-create tables sa startup
+
+NEXT STEPS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TODO: Create API CRUD endpoints sa routes/timbangan.py
+  - GET /api/timbangan - List all
+  - GET /api/timbangan/{uuid} - Get detail
+  - POST /api/timbangan - Create
+  - PUT /api/timbangan/{uuid} - Update
+  - DELETE /api/timbangan/{uuid} - Delete
+  - GET /api/timbangan/summary - Statistics
+
+NOTES:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Main advantage of Alembic:
+   - Version control para sa database schema
+   - Safe migrations with rollback
+   - Track changes over time
+   - Collaborate with team
+
+2. PostgreSQL benefits:
+   - Better than SQLite para production
+   - JSON columns (future enhancement)
+   - Full-text search
+   - Transactions & constraints
+   - UUID native support
+
+3. Models vs Schemas:
+   - models.py = Database tables (SQLAlchemy)
+   - schemas.py = API requests/responses (Pydantic)
+   - Keep them separate para flexibility
+
+4. Security:
+   - .env ay may sensitive data (jangan commit!)
+   - .gitignore already configured
+   - Change DATABASE_URL sa production
+
+================================================================================
+                         Setup Complete ✓
+             See DATABASE.md para detailed documentation
+================================================================================
