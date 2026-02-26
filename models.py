@@ -3,8 +3,9 @@ Database models untuk aplikasi timbangan
 """
 
 from decimal import Decimal
-from typing import Any, Optional
-from sqlalchemy import Column, String, Integer, DateTime, Text, Numeric
+from typing import Optional
+from sqlalchemy import String, Integer, DateTime, Text, Numeric
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from datetime import datetime
@@ -20,7 +21,7 @@ class Timbangan(Base):
     __tablename__ = "timbangan"
     
     # Primary Key
-    uuid = Column(
+    uuid: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
@@ -28,7 +29,7 @@ class Timbangan(Base):
     )
     
     # Sequence
-    no_urut = Column(
+    no_urut: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
         autoincrement=True,
@@ -36,40 +37,40 @@ class Timbangan(Base):
     )
     
     # Vehicle info
-    nopol = Column(
+    nopol: Mapped[str] = mapped_column(
         String(20),
         nullable=False,
         doc="Nomer plat nomor kendaraan"
     )
     
     # Driver info
-    sopir = Column(
+    sopir: Mapped[str] = mapped_column(
         String(100),
         nullable=False,
         doc="Nama sopir/pengemudi"
     )
     
     # Weight measurements
-    gross: Column = Column(
+    gross: Mapped[Decimal] = mapped_column(
         Numeric(precision=10, scale=2),
         nullable=False,
         doc="Berat kotor (gross) dalam kg"
     )
     
-    rate: Column = Column(
+    rate: Mapped[Optional[Decimal]] = mapped_column(
         Numeric(precision=10, scale=2),
         nullable=True,
         doc="Tarif/harga per unit peso"
     )
     
-    nett: Column = Column(
+    nett: Mapped[Decimal] = mapped_column(
         Numeric(precision=10, scale=2),
         nullable=False,
         doc="Berat bersih (nett) dalam kg"
     )
     
     # Timestamp
-    tanggalwaktu = Column(
+    tanggalwaktu: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
         nullable=False,
@@ -77,21 +78,21 @@ class Timbangan(Base):
     )
     
     # Officer
-    petugas = Column(
+    petugas: Mapped[str] = mapped_column(
         String(100),
         nullable=False,
         doc="Nama petugas yang mencatat"
     )
     
     # Metadata
-    created_at = Column(
+    created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
         nullable=False,
         doc="Waktu record dibuat di database"
     )
     
-    updated_at = Column(
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
         onupdate=datetime.utcnow,
@@ -99,7 +100,7 @@ class Timbangan(Base):
         doc="Waktu record terakhir diupdate"
     )
     
-    catatan = Column(
+    catatan: Mapped[Optional[str]] = mapped_column(
         Text,
         nullable=True,
         doc="Catatan tambahan"
