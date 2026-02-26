@@ -7,7 +7,7 @@ from typing import Optional
 from sqlalchemy import String, Integer, DateTime, Text, Numeric
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
-import uuid
+import uuid as uuid_lib
 from datetime import datetime
 from database import Base
 
@@ -21,10 +21,10 @@ class Timbangan(Base):
     __tablename__ = "timbangan"
     
     # Primary Key
-    uuid: Mapped[uuid.UUID] = mapped_column(
+    uuid: Mapped[uuid_lib.UUID] = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
-        default=uuid.uuid4,
+        default=uuid_lib.uuid4,
         doc="Unique identifier"
     )
     
